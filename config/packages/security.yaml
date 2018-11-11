@@ -1,0 +1,38 @@
+security:
+    encoders:
+        FOS\UserBundle\Model\UserInterface: bcrypt
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+
+    firewalls:
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+        oauth_authorize:
+            pattern:    ^/oauth/v2/auth
+            form_login:
+                provider: fos_userbundle
+                check_path: /oauth/v2/auth_login_check
+                login_path: /oauth/v2/auth_login
+                use_referer: true
+        api:
+            pattern:    ^/api
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  false
+        main:
+         pattern: ^/
+         form_login:
+             provider: fos_userbundle
+             csrf_token_generator: security.csrf.token_manager
+         anonymous: true
+
+    access_control:
+        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
+        - { path: ^/createClient, roles: [ IS_AUTHENTICATED_ANONYMOUSLY ] }
